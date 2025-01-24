@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admission Form</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.3/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        #spinner {
+            border: 4px solid rgba(0, 0, 0, .1);
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        body {
+            background-color: #2d2d2d;
+        }
+
+        .form-container {
+            background-color: #333333;
+        }
+
+        /* Simple modal fade-in and scaling animation */
+        .modal {
+            display: none;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .modal.show {
+            display: block;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .modal-content {
+            background-color: #4CAF50;
+            color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        /* Fireworks/crackers popping animation */
+        .firework {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #FFDC00;
+            animation: pop 0.6s ease-out forwards;
+        }
+
+        @keyframes pop {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(2);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(0);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center h-screen text-white">
+
+    <div class="form-container p-8 rounded shadow-md w-full max-w-md">
+        <h1 class="text-2xl font-semibold mb-6 text-center">Admission Form</h1>
+        <div id="spinner" class="hidden"></div>
+        <form id="admission-form" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium">Student's Name</label>
+                <input type="text" id="student-name" required class="mt-1 p-2 border rounded w-full">
+            </div>
+            <div>
+                <label class="block text-sm font-medium">Guardian's Name</label>
+                <input type="text" id="guardian-name" required class="mt-1 p-2 border rounded w-full">
+            </div>
+            <div>
+                <label class="block text-sm font-medium">Date of Birth</label>
+                <input type="date" id="dob" required class="mt-1 p-2 border rounded w-full">
+            </div>
+            <div>
+                <label class="block text-sm font-medium">Email</label>
+                <input type="email" id="email" required class="mt-1 p-2 border rounded w-full">
+            </div>
+            <div>
+                <label class="block text-sm font-medium">Phone Number</label>
+                <input type="tel" id="phone-number" required class="mt-1 p-2 border rounded w-full">
+            </div>
+            <div>
+                <label class="block text-sm font-medium">Select Course</label>
+                <select id="course" required class="mt-1 p-2 border rounded w-full">
+                    <option value="" disabled selected>Select a Course</option>
+                    <option value="HTML">HTML</option>
+                    <option value="How to Talk to AI">How to Talk to AI</option>
+                    <option value="Maths">Maths</option>
+                    <option value="Coding for Kids">Coding for Kids</option>
+                </select>
+            </div>
+            <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded mt-4">Submit</button>
+        </form>
+    </div>
+
+    <!-- Modal for success message -->
+    <div id="modal" class="modal fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
+        <div class="modal-content">
+            <h2 class="text-2xl font-semibold mb-4">Form Submitted!</h2>
+            <p>We've received your admission details.</p>
+            <button id="close-modal" class="mt-4 bg-blue-500 text-white p-2 rounded">Close</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('admission-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            // Show spinner
+            document.getElementById('spinner').classList.remove('hidden');
+
+            // Capture input values
+            const studentName = document.getElementById('student-name').value;
+            const guardianName = document.getElementById('guardian-name').value;
+            const dob = document.getElementById('dob').value;
+            const email = document.getElementById('email').value;
+            const phoneNumber = document.getElementById('phone-number').value;
+            const course = document.getElementById('course').value;
+
+            const emailBody = `
+                <p>Student's Name: ${studentName}</p>
+                <p>Guardian's Name: ${guardianName}</p>
+                <p>Date of Birth: ${dob}</p>
+                <p>Email: ${email}</p>
+                <p>Phone Number: ${phoneNumber}</p>
+                <p>Course: ${course}</p>
+            `;
+
+            fetch('https://backend.buildpicoapps.com/aero/run/self-email-api?pk=v1-Z0FBQUFBQm13Y1V5S2d6MVZxeXBnS3pzdjR5VTg3bXhMdEVGVVcyOV9veE9uVElGSVFLYWc5eUFBNlkzQkVhYUtIc2dqSFRIWHBFaGR5OFB3VThJTlJyRVVkMzFRRk9uWmc9PQ==', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    subject: 'New Admission Form Submission',
+                    body: emailBody
+                })
+            }).then(response => {
+                // Hide spinner
+                document.getElementById('spinner').classList.add('hidden');
+
+                // Show modal with success message
+                document.getElementById('modal').classList.add('show');
+
+                // Create "fireworks" effect
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        const firework = document.createElement('div');
+                        firework.classList.add('firework');
+                        firework.style.left = `${Math.random() * 100}%`;
+                        firework.style.top = `${Math.random() * 100}%`;
+                        document.body.appendChild(firework);
+                        setTimeout(() => firework.remove(), 600);  // Remove after animation
+                    }, i * 200);
+                }
+
+                // Hide the modal and reset the form after 10 seconds
+                setTimeout(function() {
+                    document.getElementById('modal').classList.remove('show');
+                    document.getElementById('admission-form').reset();
+                }, 10000);
+            }).catch(error => {
+                // Hide spinner
+                document.getElementById('spinner').classList.add('hidden');
+                console.error(error);
+            });
+        });
+
+        // Close the modal when the "Close" button is clicked
+        document.getElementById('close-modal').addEventListener('click', function() {
+            document.getElementById('modal').classList.remove('show');
+        });
+    </script>
+
+</body>
+</html>
